@@ -69,37 +69,60 @@ async function sendDataToSheet(studentList, eventName, passcode) {
 
 // Gửi dữ liệu khi bấm "Điểm danh"
 async function submitList() {
+    // Vô hiệu hóa nút gửi trong lúc đang xử lý
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Đang gửi...";
+
     const selectedEvent = eventSelect.value;
     const passcode = passCodeInput.value;
     const mssv = studentIdInput.value.trim();
 
     if (!selectedEvent) {
-        showCustomMessageBox("Vui lòng chọn sự kiện.");
+        showCustomMessageBox("Vui lòng chọn sự kiện.", () => {
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Gửi";
+        });
         return;
     }
 
     if (!passcode) {
-        showCustomMessageBox("Vui lòng nhập mã quản trị.");
+        showCustomMessageBox("Vui lòng nhập mã quản trị.", () => {
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Gửi";
+        });
         return;
     }
 
     if (!mssv) {
-        showCustomMessageBox("Vui lòng nhập MSSV.");
+        showCustomMessageBox("Vui lòng nhập MSSV.", () => {
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Gửi";
+        });
         return;
     }
 
     if (mssv.length !== 8) {
-        showCustomMessageBox("MSSV không hợp lệ. Phải có 8 ký tự.");
+        showCustomMessageBox("MSSV không hợp lệ. Phải có 8 ký tự.", () => {
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Gửi";
+        });
         return;
     }
 
     const success = await sendDataToSheet([mssv], selectedEvent, passcode);
 
     if (success) {
-        showCustomMessageBox(`✅ MSSV ${mssv} đã được điểm danh.`);
-        studentIdInput.value = "";
+        showCustomMessageBox(`✅ MSSV ${mssv} đã được điểm danh.`, () => {
+            studentIdInput.value = "";
+            studentIdInput.focus();
+        });
     }
+
+    // Bật lại nút gửi sau khi hoàn tất
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Gửi";
 }
+
 
 document.addEventListener("DOMContentLoaded", async () => {
     await loadEvents();
